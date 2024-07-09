@@ -17,8 +17,10 @@ RUN \
     # Needed to run the mlat_client:
     KEPT_PACKAGES+=(python3-minimal) && \
     KEPT_PACKAGES+=(python3-pkg-resources) && \
+    KEPT_PACKAGES+=(libhackrf-dev) && \
     # needed to compile distance
     TEMP_PACKAGES+=(build-essential) && \
+    TEMP_PACKAGES+=(pkg-config libusb-1.0-0-dev libncurses-dev libzstd-dev zlib1g-dev) && \
     # needed for container version
     TEMP_PACKAGES+=(git) && \
     #
@@ -34,6 +36,12 @@ RUN \
     ln -s /usr/local/bin/mlat-client /usr/bin/mlat-client && \
     # Compile distance binary
     gcc -static /app/downloads/distance-in-meters.c -o /usr/local/bin/distance -lm -O2 && \
+    # compile readsb for hackrf
+    git clone --depth=1 https://github.com/wiedehopf/readsb.git /tmp/readsb && \
+    pushd /tmp/readsb && \
+    make -j4 HACKRF=yes && \
+    cp -f readsb /usr/local/bin/readsb && \
+    popd && \
     # Add Container Version
     branch="##BRANCH##" && \
     [[ "${branch:0:1}" == "#" ]] && branch="main" || true && \
